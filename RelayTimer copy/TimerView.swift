@@ -8,29 +8,40 @@
 import SwiftUI
 
 struct TimerView: View {
-    @State var settime: Int = 200
+    var settime: Int {
+        timerSet.timers[currentIndex].time
+    }
     @State var time: Int = 0
-    @State var timer: Timer!
+    @State var timer: Timer?
     @State var isRunning = false
+    
+    @State private var currentIndex = 0
+    
+    var timerSet: TimerSet
+    
     var progress: Double {
         Double(time) / Double(settime)
     }
     
-    @State var ButtonString: String = "START"
+//    @State var ButtonString: String = "START"
     
     var body: some View {
         Spacer(minLength: 20)
-        HStack(spacing: 80){
-            Circle()
-                .stroke(.gray, lineWidth: 5)
-                .frame(width: 50, height: 50)
-            Circle()
-                .stroke(.gray, lineWidth: 5)
-                .frame(width: 50, height: 50)
-            Circle()
-                .stroke(.gray, lineWidth: 5)
-                .frame(width: 50, height: 50)
+        HStack(alignment: .top, spacing: 24) {
+            ForEach(0..<timerSet.timers.count, id: \.self) { index in
+                VStack(spacing: 8) {
+                    Circle()
+                        .fill(index == currentIndex ? .red : .gray.opacity(0.3))
+                        .frame(width: 20, height: 20)
+                    
+                    Text(timerSet.timers[index].name)
+                        .font(.headline)
+                        .font(.system(size: 16))
+                }
+                .frame(maxWidth: .infinity)
+            }
         }
+        .padding(.horizontal)
         Spacer(minLength: 50)
         ZStack{
             Circle()
@@ -52,15 +63,13 @@ struct TimerView: View {
             VStack {
                 
                 Button {
-                    if !isRunning {
-                        ButtonString = "DONE"
-                        start()
+                    if isRunning {
+                        nextStep()
                     } else {
-                        ButtonString = "START"
-                        stop()
+                        start()
                     }
                 } label: {
-                    Text(ButtonString)
+                    Text(isRunning ? "DONE" : "START")
                         .foregroundStyle(Color.black)
                         .font(.largeTitle)
                         .frame(width: 150, height: 100)
@@ -73,13 +82,11 @@ struct TimerView: View {
                 
         }
         HStack{
-            Button{
+            Button {
                 if !isRunning {
-                    ButtonString = "DONE"
-                    restart()
+                    start()        // ←ここ
                 } else {
-                    ButtonString = "START"
-                    stop()
+                    stop()     // DONEで次へ
                 }
             }label:{
                 Image(systemName: isRunning ? "stop.circle.fill" : "play.circle.fill")
@@ -89,22 +96,24 @@ struct TimerView: View {
             }
             Spacer()
         }
-        .navigationTitle("朝の支度")
+        .navigationTitle(timerSet.name)
         .navigationBarTitleDisplayMode(.inline)
 }
     func start() {
         time = settime
+        
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             if time > 0 {
                 time -= 1
-            }else{
-                stop()
+            } else {
+                nextStep()
             }
         }
+        
         isRunning = true
     }
     func stop() {
-        timer.invalidate()
+        timer?.invalidate()
         isRunning = false
     }
     func restart(){
@@ -117,10 +126,30 @@ struct TimerView: View {
         }
         isRunning = true
     }
+    
+    func nextStep() {
+        timer?.invalidate()
+        
+        if currentIndex < timerSet.timers.count - 1 {
+            currentIndex += 1
+            start()
+        } else {
+            isRunning = false
+        }
+    }
 }
 
 #Preview {
     NavigationStack {
-        TimerView()
+        TimerView(
+            timerSet: TimerSet(
+                name: "サンプル",
+                timers: [
+                    TimerItem(name: "調理", time: 300),
+                    TimerItem(name: "食事", time: 600),
+                    TimerItem(name: "洗い物", time: 180)
+                ]
+            )
+        )
     }
 }

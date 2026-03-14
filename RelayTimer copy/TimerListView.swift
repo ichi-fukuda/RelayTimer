@@ -7,59 +7,78 @@
 
 import SwiftUI
 
+struct TimerItem: Identifiable {
+    let id = UUID()
+    var name: String
+    var time: Int   // 秒
+}
+
+struct TimerSet: Identifiable {
+    let id = UUID()
+    var name: String
+    var timers: [TimerItem]
+}
+
 struct TimerListView: View {
-    @State var TimerSetName : String = "朝の支度"
+    
+    @State var timerSets: [TimerSet] = []
+    
+    @State private var searchText = ""
+    
     var body: some View {
-        VStack (spacing: 30){
-            HStack{
-                Text(TimerSetName)
-                    .font(.system(size: 50))
+        
+        NavigationStack {
+            
+            List(timerSets) { timer in
                 
-                Button{
+                HStack {
                     
-                }label: {
-                    NavigationLink(destination: TimerView()) {
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 50))
-                            .foregroundStyle(Color(.red))
+                    Text(timer.name)
+                        .font(.system(size: 40))
+                    
+                    Spacer()
+                    
+                    NavigationLink(destination: TimerView(timerSet: timer)) {
+                        Image(systemName: "play.fill")
+                            .foregroundStyle(.white)
+                            .frame(width: 60, height: 60)
+                            .background(.pink)
+                            .clipShape(Circle())
                     }
                 }
+                .padding(.vertical, 10)
             }
-            HStack{
-                Text(TimerSetName)
-                    .font(.system(size: 50))
+            
+            .navigationTitle("タイマーセット一覧")
+            .navigationBarTitleDisplayMode(.large)
+            .searchable(text: $searchText)
+            
+            
+            // ＋ボタン
+            .overlay(alignment: .bottomTrailing) {
                 
-                Button{
-                    
-                }label: {
-                    NavigationLink(destination: TimerView()) {
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 50))
-                            .foregroundStyle(Color(.red))
-                    }
-                }
-            }
-            Spacer()
-            HStack{
-                Spacer()
-                Button{
-                    
-                }label: {
+                NavigationLink(destination: addtimer(timerSets: $timerSets)) {
                     Image(systemName: "plus")
-                        .frame(width: 100, height: 100)
-                        .foregroundStyle(Color(.black))
-                        .glassEffect()
+                        .font(.system(size: 25))
+                        .foregroundStyle(.white)
+                        .frame(width: 70, height: 70)
+                        .background(.gray.opacity(0.3))
+                        .clipShape(Circle())
+                        .padding()
                 }
             }
         }
-        .navigationTitle("タイマーセット一覧")
-        .navigationBarTitleDisplayMode(.large)
     }
 }
 
-
 #Preview {
-    NavigationStack {
-        TimerListView()
-    }
+    TimerListView(timerSets: [
+        TimerSet(
+            name: "朝の支度",
+            timers: [
+                TimerItem(name: "歯磨き", time: 120),
+                TimerItem(name: "朝食", time: 600)
+            ]
+        )
+    ])
 }
