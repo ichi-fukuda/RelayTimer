@@ -8,19 +8,29 @@
 import SwiftUI
 
 struct TimerView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var currentIndex = 0
     @State private var showFinish = false
     @State private var time: Int = 0
     @State private var timer: Timer?
     @State private var isRunning = false
     @State private var isOvertime = false
-    
+    @State private var endDate: Date?
+    @State private var startedAt: Date?
+    @State private var elapsedSeconds: Int = 0
+    @State private var stepStartedAt: Date?
+    @State private var stepDurations: [Int]
+    @State private var stepOverruns: [Bool]
 
     var timerSet: TimerSet
 
+    private var allTimers: [TimerItem] {
+        timerSet.flattenedTimers
+    }
+
     private var currentTimer: TimerItem? {
-        guard timerSet.timers.indices.contains(currentIndex) else { return nil }
-        return timerSet.timers[currentIndex]
+        guard allTimers.indices.contains(currentIndex) else { return nil }
+        return allTimers[currentIndex]
     }
 
     var settime: Int {
@@ -44,18 +54,40 @@ struct TimerView: View {
         }
     }
 
+    init(timerSet: TimerSet) {
+        self.timerSet = timerSet
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.red
+        appearance.backgroundEffect = nil
+        appearance.shadowColor = nil
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+        let navigationBar = UINavigationBar.appearance()
+        navigationBar.isTranslucent = false
+        navigationBar.standardAppearance = appearance
+        navigationBar.scrollEdgeAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.tintColor = UIColor.white
+
+        _stepDurations = State(initialValue: Array(repeating: 0, count: timerSet.flattenedTimers.count))
+        _stepOverruns = State(initialValue: Array(repeating: false, count: timerSet.flattenedTimers.count))
+    }
+
     var body: some View {
         VStack {
             Spacer(minLength: 20)
 
             HStack(alignment: .top, spacing: 24) {
-                ForEach(0..<timerSet.timers.count, id: \.self) { index in
+                ForEach(0..<allTimers.count, id: \.self) { index in
                     VStack(spacing: 8) {
                         Circle()
                             .fill(index == currentIndex ? .red : .gray.opacity(0.3))
                             .frame(width: 20, height: 20)
 
-                        Text(timerSet.timers.indices.contains(index) ? timerSet.timers[index].name : "")
+                        Text(allTimers.indices.contains(index) ? allTimers[index].name : "")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(index == currentIndex ? .primary : .secondary)
                             .lineLimit(1)
@@ -80,11 +112,21 @@ struct TimerView: View {
                     .rotationEffect(.degrees(-90))
                     .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 5)
 
-                Text(displayTimeText)
-                    .font(.system(size: 100, weight: .thin))
-                    .monospacedDigit()
-                    .foregroundStyle(isOvertime==true ? .red : .black)
+                VStack(spacing: 12) {
+                    Text(displayTimeText)
+                        .font(.system(size: 100, weight: .thin))
+                        .monospacedDigit()
+                        .foregroundStyle(isOvertime ? .red : .primary)
+
+                    Text(currentTimer?.name ?? "")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .padding(.horizontal, 24)
+                }
             }
+            Spacer()
 
             VStack {
                 Button {
@@ -95,7 +137,7 @@ struct TimerView: View {
                     }
                 } label: {
                     Text(isRunning ? "DONE" : "START")
-                        .foregroundStyle(Color.black)
+                        .foregroundStyle(.black)
                         .font(.largeTitle)
                         .frame(width: 150, height: 100)
                         .padding()
@@ -107,75 +149,147 @@ struct TimerView: View {
             }
 
             HStack {
-                Button {
-                    if !isRunning {
-                        start()
-                    } else {
-                        stop()
-                    }
-                } label: {
-                    Image(systemName: isRunning ? "stop.circle.fill" : "play.circle.fill")
-                        .foregroundStyle(.red)
-                        .frame(width: 100, height: 100)
-                        .font(.system(size: 70))
-                }
+//                Button {
+//                    if !isRunning {
+//                        start()
+//                    } else {
+//                        stop()
+//                    }
+//                } label: {
+//                    Image(systemName: isRunning ? "stop.circle.fill" : "play.circle.fill")
+//                        .foregroundStyle(.red)
+//                        .frame(width: 100, height: 100)
+//                        .font(.system(size: 70))
+//                }
 
                 Spacer()
             }
         }
         .navigationTitle(timerSet.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(timerSet.name)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+            }
+        }
+        .toolbarBackground(Color.red, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .tint(.white)
         .background(
             NavigationLink(
-                destination: FinishView(),
+                destination: FinishView(
+                    elapsedSeconds: elapsedSeconds,
+                    stepNames: allTimers.map(\.name),
+                    stepDurations: stepDurations,
+                    stepOverruns: stepOverruns
+                ),
                 isActive: $showFinish,
                 label: { EmptyView() }
             )
             .hidden()
         )
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                refreshTimeFromEndDate()
+                if isRunning {
+                    scheduleTimer()
+                }
+            } else {
+                timer?.invalidate()
+            }
+        }
         .onDisappear {
             timer?.invalidate()
         }
+        .appBackground()
     }
 
     func start() {
-        guard currentTimer != nil else { return }
+        guard let currentTimer else { return }
         timer?.invalidate()
         time = settime
-
         isOvertime = false
-
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            if time > 0 {
-                time -= 1
-            } else {
-                isOvertime = true
-                time -= 1
-            }
+        stepStartedAt = Date()
+        if startedAt == nil {
+            startedAt = Date()
         }
-
+        endDate = Date().addingTimeInterval(TimeInterval(settime))
+        scheduleTimer()
         isRunning = true
+
+        if #available(iOS 16.1, *) {
+            LiveActivityManager.shared.startIfNeeded(
+                timerSetName: timerSet.name,
+                stepName: currentTimer.name,
+                endDate: endDate ?? Date(),
+                totalSeconds: settime
+            )
+        }
     }
 
     func stop() {
         timer?.invalidate()
         isRunning = false
+
+        if #available(iOS 16.1, *) {
+            LiveActivityManager.shared.update(
+                stepName: currentTimer?.name ?? "",
+                endDate: endDate ?? Date(),
+                isRunning: false
+            )
+        }
     }
 
     func nextStep() {
-        guard !timerSet.timers.isEmpty else {
+        guard !allTimers.isEmpty else {
             isRunning = false
             return
         }
         timer?.invalidate()
+        if let stepStartedAt {
+            let duration = max(0, Int(Date().timeIntervalSince(stepStartedAt)))
+            if stepDurations.indices.contains(currentIndex) {
+                stepDurations[currentIndex] = duration
+                stepOverruns[currentIndex] = isOvertime
+            }
+        }
 
-        if currentIndex < timerSet.timers.count - 1 {
+        if currentIndex < allTimers.count - 1 {
             currentIndex += 1
             isOvertime = false
             start()
         } else {
             isRunning = false
+            if let startedAt {
+                elapsedSeconds = max(0, Int(Date().timeIntervalSince(startedAt)))
+            } else {
+                elapsedSeconds = 0
+            }
+            if #available(iOS 16.1, *) {
+                LiveActivityManager.shared.end()
+            }
             showFinish = true
+        }
+    }
+
+    private func scheduleTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            refreshTimeFromEndDate()
+        }
+    }
+
+    private func refreshTimeFromEndDate() {
+        guard let endDate else { return }
+        let remaining = Int(endDate.timeIntervalSinceNow.rounded(.down))
+        if remaining >= 0 {
+            time = remaining
+            isOvertime = false
+        } else {
+            time = remaining
+            isOvertime = true
         }
     }
 }

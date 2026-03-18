@@ -72,6 +72,8 @@ struct NewTimerView: View {
         }
         .navigationTitle("新規タイマー")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(AppTheme.accent, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("保存") {
@@ -161,7 +163,7 @@ struct NewTimerView: View {
             }
             .presentationDetents([.medium])
         }
-        
+        .appBackground()
     }
 }
 

@@ -16,6 +16,26 @@ enum ActiveSheet: Identifiable {
 }
 
 struct addtimer: View {
+    init(editingTimerSet: TimerSet? = nil, timerSets: Binding<[TimerSet]>) {
+        self.editingTimerSet = editingTimerSet
+        self._timerSets = timerSets
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.red
+        appearance.backgroundEffect = nil
+        appearance.shadowColor = nil
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+        let navigationBar = UINavigationBar.appearance()
+        navigationBar.isTranslucent = false
+        navigationBar.standardAppearance = appearance
+        navigationBar.scrollEdgeAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.tintColor = UIColor.white
+    }
+
     var editingTimerSet: TimerSet? = nil
     
     @State private var title = ""
@@ -30,9 +50,11 @@ struct addtimer: View {
     @Binding var timerSets: [TimerSet]
     @Environment(\.dismiss) private var dismiss
     @State private var timers: [TimerItem] = []
+    @State private var childTimerSets: [TimerSet] = []
+    @State private var orderedItems: [TimerSetOrderItem] = []
     
     private var totalTimeText: String {
-        let totalSeconds = timers.reduce(0) { $0 + $1.time }
+        let totalSeconds = timers.reduce(0) { $0 + $1.time } + childTimerSets.reduce(0) { $0 + totalDuration(for: $1) }
         let hours = totalSeconds / 3600
         let minutes = (totalSeconds % 3600) / 60
         let seconds = totalSeconds % 60
@@ -108,11 +130,41 @@ struct addtimer: View {
         return $timers[index]
     }
 
+    private enum OrderedEditorItem: Identifiable {
+        case timer(TimerItem)
+        case timerSet(TimerSet)
+
+        var id: UUID {
+            switch self {
+            case .timer(let timer):
+                return timer.id
+            case .timerSet(let timerSet):
+                return timerSet.id
+            }
+        }
+    }
+
+    private var availableChildTimerSets: [TimerSet] {
+        let excludedIDs = Set(childTimerSets.map(\.id)).union(editingTimerSet.map { [$0.id] } ?? [])
+        return timerSets.filter { !excludedIDs.contains($0.id) }
+    }
+
+    private var orderedEditorItems: [OrderedEditorItem] {
+        orderedItems.compactMap { item in
+            switch item.kind {
+            case .timer:
+                return timers.first(where: { $0.id == item.id }).map(OrderedEditorItem.timer)
+            case .timerSet:
+                return childTimerSets.first(where: { $0.id == item.id }).map(OrderedEditorItem.timerSet)
+            }
+        }
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView {
                 VStack(spacing: 20) {
-                    
+                    Spacer()
                     // タイトル
                     TextField("Title", text: $title)
                         .textFieldStyle(.roundedBorder)
@@ -147,48 +199,16 @@ struct addtimer: View {
                     Divider()
                     
                     
-                    // タイマーリスト
-                    VStack(spacing: 0) {
-                        ForEach(Array(timers.enumerated()), id: \.element.id) { index, timer in
-                            HStack(alignment: .center, spacing: 12) {
-                                Circle()
-                                    .stroke(Color.black, lineWidth: 2)
-                                    .frame(width: 60, height: 60)
-                                Button {
-                                    editingTimer = timer
-                                } label: {
-                                    HStack(spacing: 12) {
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            Text(timer.name)
-                                                .font(.title2)
-                                                .foregroundStyle(.primary)
+                    VStack(alignment: .leading, spacing: 12) {
+                        if !orderedEditorItems.isEmpty {
+                            Text("工程")
+                                .font(.headline)
+                                .foregroundStyle(.black)
+                                .padding(.horizontal)
+                        }
 
-                                            Divider()
-                                        }
-
-                                        Spacer()
-
-                                        Text(formatTime(timer.time))
-                                            .font(.title2)
-                                            .foregroundStyle(.primary)
-                                    }
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.vertical, 12)
-                            .padding(.horizontal)
-
-                            if index < timers.count - 1 {
-                                HStack {
-                                    Rectangle()
-                                        .fill(Color.black)
-                                        .frame(width: 1)
-                                        .frame(height: 50)
-                                        .padding(.leading, 29)
-                                    Spacer()
-                                }
-                            }
+                        ForEach(Array(orderedEditorItems.enumerated()), id: \.element.id) { index, item in
+                            orderedItemRow(for: item, at: index)
                         }
                     }
                     
@@ -201,12 +221,23 @@ struct addtimer: View {
                         Spacer()
                         Text("合計: \(totalTimeText)")
                             .font(.title3)
+                            .foregroundStyle(.black)
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 120)
                 }
                 .navigationTitle("新規タイマーセット")
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("新規タイマーセット")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                    }
+                }
+                .toolbarBackground(Color.red, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+                .tint(.white)
                 .sheet(item: $activeSheet) { sheet in
                     NavigationStack {
                         switch sheet {
@@ -214,7 +245,10 @@ struct addtimer: View {
                             NewTimerView(timers: $timers)
                             
                         case .timerSet:
-                            NewTimerSetView()
+                            NewTimerSetView(
+                                availableTimerSets: availableChildTimerSets,
+                                selectedTimerSets: $childTimerSets
+                            )
                         }
                     }
                 }
@@ -238,7 +272,17 @@ struct addtimer: View {
                 if let editingTimerSet {
                     title = editingTimerSet.name
                     timers = editingTimerSet.timers
+                    childTimerSets = editingTimerSet.childTimerSets
+                    orderedItems = editingTimerSet.resolvedOrderedItems
+                } else {
+                    syncOrderedItems()
                 }
+            }
+            .onChange(of: timers) { _, _ in
+                syncOrderedItems()
+            }
+            .onChange(of: childTimerSets) { _, _ in
+                syncOrderedItems()
             }
             .toolbar {
                 Button("保存") {
@@ -248,11 +292,15 @@ struct addtimer: View {
 
                         timerSets[index].name = title
                         timerSets[index].timers = timers
+                        timerSets[index].childTimerSets = childTimerSets
+                        timerSets[index].orderedItems = orderedItems
 
                     } else {
                         let newSet = TimerSet(
                             name: title,
-                            timers: timers
+                            timers: timers,
+                            childTimerSets: childTimerSets,
+                            orderedItems: orderedItems
                         )
                         timerSets.append(newSet)
                     }
@@ -263,6 +311,7 @@ struct addtimer: View {
 
                     dismiss()
                 }
+                .foregroundStyle(.white)
             }
             
             Menu {
@@ -284,11 +333,164 @@ struct addtimer: View {
             }
             .padding(.bottom, 30)
         }
+        .appBackground()
     }
+
+    @ViewBuilder
+    private func orderedItemRow(for item: OrderedEditorItem, at index: Int) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            rowLeadingIcon(for: item)
+
+            Button {
+                if case .timer(let timer) = item {
+                    editingTimer = timer
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(titleText(for: item))
+                            .font(.title2)
+                            .foregroundStyle(.black)
+
+                        Text(subtitleText(for: item))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    if case .timer(let timer) = item {
+                        Text(formatTime(timer.time))
+                            .font(.title2)
+                            .foregroundStyle(.black)
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(!isEditable(item))
+
+            VStack(spacing: 10) {
+                Button {
+                    moveOrderedItem(at: index, offset: -1)
+                } label: {
+                    Image(systemName: "chevron.up")
+                        .foregroundStyle(index == 0 ? .gray : .black)
+                }
+                .disabled(index == 0)
+
+                Button {
+                    moveOrderedItem(at: index, offset: 1)
+                } label: {
+                    Image(systemName: "chevron.down")
+                        .foregroundStyle(index == orderedEditorItems.count - 1 ? .gray : .black)
+                }
+                .disabled(index == orderedEditorItems.count - 1)
+            }
+
+            if case .timerSet(let timerSet) = item {
+                Button(role: .destructive) {
+                    childTimerSets.removeAll { $0.id == timerSet.id }
+                } label: {
+                    Image(systemName: "trash")
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal)
+
+        if index < orderedEditorItems.count - 1 {
+            HStack {
+                Rectangle()
+                    .fill(Color.black)
+                    .frame(width: 1)
+                    .frame(height: 36)
+                    .padding(.leading, 45)
+                Spacer()
+            }
+        }
+    }
+
     func formatTime(_ seconds: Int) -> String {
-        let minutes = seconds / 60
+        let hours = seconds / 3600
+        let minutes = (seconds % 3600) / 60
         let sec = seconds % 60
+
+        if hours > 0 {
+            return "\(hours):\(String(format: "%02d:%02d", minutes, sec))"
+        }
+
         return "\(minutes):\(String(format: "%02d", sec))"
+    }
+
+    private func totalDuration(for timerSet: TimerSet) -> Int {
+        timerSet.timers.reduce(0) { $0 + $1.time } + timerSet.childTimerSets.reduce(0) { $0 + totalDuration(for: $1) }
+    }
+
+    private func syncOrderedItems() {
+        let timerItems = timers.map { TimerSetOrderItem(id: $0.id, kind: .timer) }
+        let timerSetItems = childTimerSets.map { TimerSetOrderItem(id: $0.id, kind: .timerSet) }
+        let validItems = timerItems + timerSetItems
+        let validIDs = Set(validItems.map(\.id))
+
+        let keptItems = orderedItems.filter { validIDs.contains($0.id) }
+        let keptIDs = Set(keptItems.map(\.id))
+        let missingItems = validItems.filter { !keptIDs.contains($0.id) }
+
+        orderedItems = keptItems + missingItems
+    }
+
+    private func moveOrderedItem(at index: Int, offset: Int) {
+        let destination = index + offset
+        guard orderedItems.indices.contains(index), orderedItems.indices.contains(destination) else {
+            return
+        }
+
+        let item = orderedItems.remove(at: index)
+        orderedItems.insert(item, at: destination)
+    }
+
+    private func rowLeadingIcon(for item: OrderedEditorItem) -> some View {
+        Group {
+            switch item {
+            case .timer:
+                Circle()
+                    .stroke(Color.black, lineWidth: 2)
+                    .frame(width: 60, height: 60)
+            case .timerSet:
+                Image(systemName: "square.stack.3d.down.right")
+                    .font(.title2)
+                    .foregroundStyle(.red)
+                    .frame(width: 60, height: 60)
+            }
+        }
+    }
+
+    private func titleText(for item: OrderedEditorItem) -> String {
+        switch item {
+        case .timer(let timer):
+            return timer.name
+        case .timerSet(let timerSet):
+            return timerSet.name
+        }
+    }
+
+    private func subtitleText(for item: OrderedEditorItem) -> String {
+        switch item {
+        case .timer:
+            return "タイマー"
+        case .timerSet(let timerSet):
+            return "タイマーセット ・ 工程数: \(timerSet.totalTimerCount) ・ 合計: \(formatTime(totalDuration(for: timerSet)))"
+        }
+    }
+
+    private func isEditable(_ item: OrderedEditorItem) -> Bool {
+        if case .timer = item {
+            return true
+        }
+
+        return false
     }
 }
 
@@ -362,6 +564,7 @@ struct EditTimerView: View {
                     dismiss()
                 }
                 .disabled(editedName.isEmpty || totalSeconds == 0)
+                .foregroundStyle(.white)
             }
         }
         .sheet(isPresented: $showTimePicker) {
@@ -445,6 +648,7 @@ struct EditTimerView: View {
             minutes = (timer.time % 3600) / 60
             seconds = timer.time % 60
         }
+        .appBackground()
     }
 }
 

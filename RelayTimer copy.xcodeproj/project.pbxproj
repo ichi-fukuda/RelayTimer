@@ -6,14 +6,80 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		78B7A7BE2F69627D004C254E /* LiveActivityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B7A7BD2F69627D004C254E /* LiveActivityModels.swift */; };
+		78B7A7C02F696287004C254E /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B7A7BF2F696287004C254E /* LiveActivityManager.swift */; };
+		78B7A7C82F69637B004C254E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78B7A7C72F69637B004C254E /* WidgetKit.framework */; };
+		78B7A7CA2F69637B004C254E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78B7A7C92F69637B004C254E /* SwiftUI.framework */; };
+		78B7A7DB2F69637C004C254E /* RelayTimerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 78B7A7C52F69637B004C254E /* RelayTimerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		78B7A7E12F6967F0004C254E /* LiveActivityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B7A7BD2F69627D004C254E /* LiveActivityModels.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		78B7A7D92F69637C004C254E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 783791F22F57F8230073DD96 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 78B7A7C42F69637B004C254E;
+			remoteInfo = RelayTimerWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		78B7A7E02F69637C004C254E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				78B7A7DB2F69637C004C254E /* RelayTimerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		783791FA2F57F8230073DD96 /* RelayTimer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RelayTimer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		78B7A7BD2F69627D004C254E /* LiveActivityModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityModels.swift; sourceTree = "<group>"; };
+		78B7A7BF2F696287004C254E /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		78B7A7C52F69637B004C254E /* RelayTimerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RelayTimerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		78B7A7C72F69637B004C254E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		78B7A7C92F69637B004C254E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		78B7A7DC2F69637C004C254E /* Exceptions for "RelayTimerWidget" folder in "RelayTimerWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 78B7A7C42F69637B004C254E /* RelayTimerWidgetExtension */;
+		};
+		78B7A8072F697054004C254E /* Exceptions for "RelayTimer" folder in "RelayTimer" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 783791F92F57F8230073DD96 /* RelayTimer */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		783791FC2F57F8230073DD96 /* RelayTimer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				78B7A8072F697054004C254E /* Exceptions for "RelayTimer" folder in "RelayTimer" target */,
+			);
 			path = RelayTimer;
+			sourceTree = "<group>";
+		};
+		78B7A7CB2F69637B004C254E /* RelayTimerWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				78B7A7DC2F69637C004C254E /* Exceptions for "RelayTimerWidget" folder in "RelayTimerWidgetExtension" target */,
+			);
+			path = RelayTimerWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,6 +92,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		78B7A7C22F69637B004C254E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78B7A7CA2F69637B004C254E /* SwiftUI.framework in Frameworks */,
+				78B7A7C82F69637B004C254E /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -33,7 +108,11 @@
 			isa = PBXGroup;
 			children = (
 				783791FC2F57F8230073DD96 /* RelayTimer */,
+				78B7A7CB2F69637B004C254E /* RelayTimerWidget */,
+				78B7A7C62F69637B004C254E /* Frameworks */,
 				783791FB2F57F8230073DD96 /* Products */,
+				78B7A7BD2F69627D004C254E /* LiveActivityModels.swift */,
+				78B7A7BF2F696287004C254E /* LiveActivityManager.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,8 +120,18 @@
 			isa = PBXGroup;
 			children = (
 				783791FA2F57F8230073DD96 /* RelayTimer.app */,
+				78B7A7C52F69637B004C254E /* RelayTimerWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		78B7A7C62F69637B004C254E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				78B7A7C72F69637B004C254E /* WidgetKit.framework */,
+				78B7A7C92F69637B004C254E /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +144,12 @@
 				783791F62F57F8230073DD96 /* Sources */,
 				783791F72F57F8230073DD96 /* Frameworks */,
 				783791F82F57F8230073DD96 /* Resources */,
+				78B7A7E02F69637C004C254E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				78B7A7DA2F69637C004C254E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				783791FC2F57F8230073DD96 /* RelayTimer */,
@@ -69,6 +160,28 @@
 			productName = RelayTimer;
 			productReference = 783791FA2F57F8230073DD96 /* RelayTimer.app */;
 			productType = "com.apple.product-type.application";
+		};
+		78B7A7C42F69637B004C254E /* RelayTimerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 78B7A7DD2F69637C004C254E /* Build configuration list for PBXNativeTarget "RelayTimerWidgetExtension" */;
+			buildPhases = (
+				78B7A7C12F69637B004C254E /* Sources */,
+				78B7A7C22F69637B004C254E /* Frameworks */,
+				78B7A7C32F69637B004C254E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				78B7A7CB2F69637B004C254E /* RelayTimerWidget */,
+			);
+			name = RelayTimerWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = RelayTimerWidgetExtension;
+			productReference = 78B7A7C52F69637B004C254E /* RelayTimerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +194,9 @@
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					783791F92F57F8230073DD96 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					78B7A7C42F69637B004C254E = {
 						CreatedOnToolsVersion = 26.3;
 					};
 				};
@@ -100,12 +216,20 @@
 			projectRoot = "";
 			targets = (
 				783791F92F57F8230073DD96 /* RelayTimer */,
+				78B7A7C42F69637B004C254E /* RelayTimerWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		783791F82F57F8230073DD96 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		78B7A7C32F69637B004C254E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -119,10 +243,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78B7A7BE2F69627D004C254E /* LiveActivityModels.swift in Sources */,
+				78B7A7C02F696287004C254E /* LiveActivityManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		78B7A7C12F69637B004C254E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78B7A7E12F6967F0004C254E /* LiveActivityModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		78B7A7DA2F69637C004C254E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 78B7A7C42F69637B004C254E /* RelayTimerWidgetExtension */;
+			targetProxy = 78B7A7D92F69637C004C254E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		783792032F57F8230073DD96 /* Debug */ = {
@@ -254,6 +396,10 @@
 				DEVELOPMENT_TEAM = 5XRXYTAFQQ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RelayTimer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RelayTimer;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -267,12 +413,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.Fukuda.Ichi.RelayTimer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -286,6 +436,10 @@
 				DEVELOPMENT_TEAM = 5XRXYTAFQQ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RelayTimer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RelayTimer;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -299,8 +453,72 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.Fukuda.Ichi.RelayTimer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		78B7A7DE2F69637C004C254E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5XRXYTAFQQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RelayTimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RelayTimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Fukuda.Ichi.RelayTimer.RelayTimerWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		78B7A7DF2F69637C004C254E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5XRXYTAFQQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RelayTimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RelayTimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Fukuda.Ichi.RelayTimer.RelayTimerWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -325,6 +543,15 @@
 			buildConfigurations = (
 				783792062F57F8230073DD96 /* Debug */,
 				783792072F57F8230073DD96 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		78B7A7DD2F69637C004C254E /* Build configuration list for PBXNativeTarget "RelayTimerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				78B7A7DE2F69637C004C254E /* Debug */,
+				78B7A7DF2F69637C004C254E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

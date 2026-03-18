@@ -12,5 +12,8 @@ struct ContentView: View {
         NavigationStack {
             TimerListView()
         }
+        .toolbarBackground(AppTheme.accent, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .appBackground()
     }
 }
